@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <?php
+
+include "_config.php";
+
+
     phpinfo();
 ?>
 
