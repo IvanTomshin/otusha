@@ -17,7 +17,7 @@ function create(&$param)
     $_sep = "";
 
     foreach ($param['data'] as $idx => $row) {
-        $_fields .= $_sep . $idx;
+        $_fields .= $_sep . htmlspecialchars($idx);
         $_values .= $_sep . "'" . ($idx == 'password' ? md5($row) : $row) . "'";
         $_sep = ",";
     }
@@ -52,7 +52,7 @@ function Update($id, &$param)
     $_sep = "";
 
     foreach ($param['data'] as $idx => $row) {
-        $_fields .= $_sep . $idx . "='" . htmlspecialchars($row) . "'";
+        $_fields .= $_sep . htmlspecialchars($idx) . "='" . htmlspecialchars($row) . "'";
         $_sep = ",";
     }
 
