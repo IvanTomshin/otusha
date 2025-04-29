@@ -1,0 +1,86 @@
+ersion: "3.8"
+
+services:
+# Контейнер с базой данных
+  postgres:
+    container_name: postgres
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    ports:
+      - '5432:5432'
+    restart: always
+    networks:
+      - internal
+
+# Контейнер с базой данных slave1
+  postgres_slave1:
+    container_name: postgres_slave1
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres_slave:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    ports:
+      - '15432:5432'
+    restart: always
+    networks:
+      - internal
+
+# Контейнер с базой данных slave2
+  postgres_slave2:
+    container_name: postgres_slave2
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres_slave:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    ports:
+      - '25432:5432'
+    restart: always
+    networks:
+      - internal
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - postgres
+    image: nginx:latest
+    ports:
+      - '80:80'
+# порт снаружи / порт внутри докера
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./www/otusha:/var/www
+      - ./log/nginx:/var/log/nginx
+    restart: always
+    networks:
+      - internal
+
+# php контейнер
+  php:
+    container_name: php
+    build:.
+      context: ./php
+    image: php:fpm-alpine
+    networks:
+      - internal
+    volumes:
+      - ./www/otusha:/var/www
+      - ./log/php:/var/log/fpm-php.log
+
+# контейнер с сетью
+networks:
+  internal:
+    driver: bridge
