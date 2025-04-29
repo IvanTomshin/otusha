@@ -43,7 +43,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - ./postgres_slave:/var/lib/postgresql/data
+      - ./postgres_slave2:/var/lib/postgresql/data
     expose:
       - '5432'
     ports:
