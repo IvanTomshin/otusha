@@ -13,17 +13,13 @@ function view(&$param)
 
 function create(&$param)
 {
-    $_friend_id = (int)$_GET['friend_id'];
     $_token = $param["token"];
-
     if (empty($_token)) {
         header('Location: about.php?msg=not%20auth');
         exit();
     }
 
-    unset($param['data']);
     $auth_user_id = 0;
-
     $sql = "select id from public.users where token = '" . $_token . "' and deleted=0 limit 1;";
     $result = pg_query($GLOBALS['db_postgresql_conn_r1'], $sql);
     if ($result) {
@@ -36,7 +32,20 @@ function create(&$param)
         exit();
     }
 
-    $sql = "insert into public.friends (user_id , friend_id ) values ( $auth_user_id, $_friend_id);";
+    $_values = "";
+    foreach ($param['data'] as $idx => $row) {
+        if ($idx == "msg")
+            $_values = htmlspecialchars($row);
+    }
+
+    if ($_values == "") {
+        header('Location: about.php?msg=not%20message');
+        exit();
+    }
+
+    unset($param['data']);
+
+    $sql = "insert into public.posts (user_id , msg ) values ( $auth_user_id, '".$_values."');";
     $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
     if ($result)
         $param["success"] = true;
