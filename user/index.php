@@ -13,7 +13,7 @@ function view(&$param)
 	}
 
     $sql = "select * from public.users_data where 1=1 $_where ;";
-    $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+    $result = pg_query($GLOBALS['db_postgresql_conn_r2'], $sql);
     $_res_row = array();
     if ($result) {
         while ( $_users_data = pg_fetch_array($result, null, PGSQL_ASSOC ) ) {

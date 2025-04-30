@@ -19,7 +19,7 @@ function view(&$param)
     $auth_user_id = 0;
 
     $sql = "select token from public.users where id = $user_id and deleted=0 limit 1;";
-    $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+    $result = pg_query($GLOBALS['db_postgresql_conn_r1'], $sql);
     if ($result) {
         $row = pg_fetch_array($result);
         if ($_token == $row['token'])
@@ -33,7 +33,7 @@ function view(&$param)
 
     $_users_data = array();
     $sql = "select * from public.users_data where id = $auth_user_id;";
-    $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+    $result = pg_query($GLOBALS['db_postgresql_conn_r1'], $sql);
     if ($result) {
         $_users_data = pg_fetch_array($result, 0, PGSQL_ASSOC );
         $param["success"] = true;

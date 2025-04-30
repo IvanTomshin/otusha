@@ -24,7 +24,7 @@ function create(&$param)
     unset($param['data']);
 
     $sql = "insert into public.users ($_fields) values ($_values) RETURNING id as user_id, token;";
-    $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+    $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
     $param["message"] = $sql;
     if ($result) {
         $row = pg_fetch_array($result);
@@ -61,7 +61,7 @@ function Update($id, &$param)
     if ($_fields != "") {
         $sql = "update public.users_data set $_fields where id=$user_id;";
         $param["message"] = $sql;
-        $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+        $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
         if ($result)
             $param["success"] = true;
     }

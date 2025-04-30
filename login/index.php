@@ -20,7 +20,7 @@ function view(&$param)
     $sql = "select id as user_id, token from public.users where deleted = 0 and login = '$_login' and password = '$_password' limit 1;";
     $param["message"] = $sql;
 
-    $result = pg_query($GLOBALS['db_postgresql_conn'], $sql);
+    $result = pg_query($GLOBALS['db_postgresql_conn_r1'], $sql);
     unset($param['data']);
     if ($result) {
         $row = pg_fetch_array($result);
@@ -28,8 +28,11 @@ function view(&$param)
             "token" => $row['token'],
             "user_id" => $row['user_id']
         );
-        if ($row['user_id'] > 0)
+        if ($row['user_id'] > 0) {
             $param["success"] = true;
+	    $sql = "update public.users_data set last_activity = NOW() where id = " . $row['user_id'];
+	    $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
+	}
 
         $param["data"] = $res;
     }

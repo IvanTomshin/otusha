@@ -5,6 +5,9 @@
   RewriteRule ^user/register/([0-9]+)?$ /user/register/index.php?user_id=$1 [L,QSA]
   RewriteRule ^user/get/([0-9]+)?$ /user/get/index.php?user_id=$1 [L,QSA]
 
+  RewriteRule ^user/get/([0-9]+)?$ /friends/set/index.php?friend_id=$1 [L,QSA]
+  RewriteRule ^user/get/([0-9]+)?$ /friends/get/index.php?friend_id=$1 [L,QSA]
+
   </IfModule>
 
  <Limit GET POST PUT DELETE>
