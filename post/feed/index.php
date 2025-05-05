@@ -48,13 +48,13 @@ function view(&$param)
     $redis->connect($GLOBALS['redis_conn'], 6379);
     $_cache_Key = $auth_user_id . hash("sha256", $sql);
 
+    $_posts_data = array();
     if ($redis->exists($_cache_Key)) {
         // Получение данных из кэша
         $_posts_data = json_decode($redis->get($_cache_Key));
         $param["message"] = "In cache!";
     } else {
         $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
-        $_posts_data = array();
         if ($result) {
             while ($_post_data = pg_fetch_array($result, null, PGSQL_ASSOC))
                 $_posts_data[] = $_post_data;
@@ -64,6 +64,7 @@ function view(&$param)
             $param["message"] = $sql;
         }
     }
+    $redis->close();
     $param["success"] = true;
     $param["data"] = $_posts_data;
 }
