@@ -11,7 +11,7 @@ set_time_limit(600);
         while ( $_users_data = pg_fetch_array($result, null, PGSQL_ASSOC ) ) {
             $_user_id = (int)$_users_data['id'];
 
-            $sql1 = "insert into posts (user_id, msg) select $_user_id, msg from _pst order by random() limit 5*random()";
+            $sql1 = "insert into friends (user_id, friend_id) select $_user_id, id from users order by random() limit 1000*random();";
             pg_query($GLOBALS['db_postgresql_conn_r2'], $sql1);
 //            echo $sql1;
         }

@@ -7,7 +7,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/common/_core.php";
 
 function view(&$param)
 {
-    $sql = "select id, token from public.users where deleted = 0 order by random() limit 1;";
+    $rnd_id = (int)rand(1,200000);
+    $sql = "select id, token from public.users where id in (select user_id from users_rnd where id = $rnd_id )";
     $result = pg_query($GLOBALS['db_postgresql_conn_r2'], $sql);
 
     unset($param['data']);
