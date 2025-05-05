@@ -1,14 +1,10 @@
-<h1 align="center">Привет друг, я Иван</h1>
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=OTUS+Hightload+student)](https://git.io/typing-svg)
+<h1 align="center">Привет друг, я Иван
+<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/></h1>
+<h3 align="center">Студент Otus, HightLoad 🇺</h3>
 
+## postgresql - скрипты базы данных 
+## docs - скрипты генерации данных, фалйы JMeter, композиция докер 
+## postman - описания api 
 
-# otusha
-
-# скрипт базы данных находится в папке postgresql
-# сделал минимальные индексы и внешние ключи. 
-# после во втором ДЗ добавлю реальные индексы
-
-# в папке postman коллекция и переменные для тестирования
-
-https://otusha.all-exclusive.ru/login/about.php
+##https://otusha.all-exclusive.ru/login/about.php
 
