@@ -37,9 +37,16 @@ function view(&$param)
         exit();
     }
 
+    $_page = (int)$_GET['page'];
     unset($param['data']);
     $_posts_data = array();
-    $sql = "select * from public.posts where user_id in ( select friend_id from friends where user_id = $auth_user_id ) order by id desc limit 1000;";
+    $sql = "select * from public.posts where user_id in ( select friend_id from friends where user_id = $auth_user_id ) order by id desc limit 10 offset $_page";
+
+
+    $_hash_key = $auth_user_id . hash("sha256", $sql);
+
+
+
     $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
     $_posts_data = array();
     if ($result) {
