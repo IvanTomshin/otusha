@@ -41,6 +41,12 @@ function create(&$param)
     if ($result)
         $param["success"] = true;
 
+    $iterator = null;
+    while ($keys = $GLOBALS['redis']->scan($iterator, $auth_user_id . ":*"))
+        if ($keys !== false)
+            $GLOBALS['redis']->del($keys);
+
+
     $param["message"] = $sql;
 }
 

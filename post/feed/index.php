@@ -39,32 +39,30 @@ function view(&$param)
         exit();
     }
 
+//    pg_query($GLOBALS['db_postgresql_conn_w'], 'LISTEN friend_and_post_updated_'.$auth_user_id.';');
+//    $notify = pg_get_notify($GLOBALS['db_postgresql_conn_w']);
+
     $_page = (int)$_GET['page'];
-    unset($param['data']);
-    $_posts_data = array();
-    $sql = "select * from public.posts where user_id in ( select friend_id from friends where user_id = $auth_user_id ) order by id desc limit 10 offset $_page";
 
-    $redis = new Redis();
-    $redis->connect($GLOBALS['redis_conn'], 6379);
-    $_cache_Key = $auth_user_id . hash("sha256", $sql);
+    $_cache_Key = $auth_user_id . ":" . $_page;
 
     $_posts_data = array();
-    if ($redis->exists($_cache_Key)) {
+    if ($GLOBALS['redis']->exists($_cache_Key)) {
         // Получение данных из кэша
-        $_posts_data = json_decode($redis->get($_cache_Key));
-        $param["message"] = "In cache!";
+        $_posts_data = json_decode($GLOBALS['redis']->get($_cache_Key));
+        $param["message"] = "In cache!" ;
     } else {
+        $sql = "select * from public.posts where user_id in ( select friend_id from friends where user_id = $auth_user_id ) order by id desc limit 10 offset $_page";
         $result = pg_query($GLOBALS['db_postgresql_conn_w'], $sql);
         if ($result) {
             while ($_post_data = pg_fetch_array($result, null, PGSQL_ASSOC))
                 $_posts_data[] = $_post_data;
             // Запись в кеш
-            $redis->set($_cache_Key, json_encode($_posts_data));
-            $redis->expire($_cache_Key, 600);
+            $GLOBALS['redis']->set($_cache_Key, json_encode($_posts_data));
+            $GLOBALS['redis']->expire($_cache_Key, 600);
             $param["message"] = $sql;
         }
     }
-    $redis->close();
     $param["success"] = true;
     $param["data"] = $_posts_data;
 }
