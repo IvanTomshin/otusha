@@ -1,368 +1,524 @@
 {
-    "info": {
-	"_postman_id": "658a4d57-4088-4a50-9bae-7960e4923674",
-	"name": "otus-mamba",
-	"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-	"_exporter_id": "43317338",
-	"_collection_link": "https://bold-star-922352.postman.co/workspace/Team-Workspace~59f9b4c0-8223-4e0e-818a-5890fd37d059/collection/43317338-658a4d57-4088-4a50-9bae-7960e4923674?action=share&source=collection_link&creator=43317338"
-    },
-    "item": [
-	{
-	    "name": "login",
-	    "event": [
+	"info": {
+		"_postman_id": "658a4d57-4088-4a50-9bae-7960e4923674",
+		"name": "otus-mamba",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43317338",
+		"_collection_link": "https://bold-star-922352.postman.co/workspace/Team-Workspace~59f9b4c0-8223-4e0e-818a-5890fd37d059/collection/43317338-658a4d57-4088-4a50-9bae-7960e4923674?action=share&source=collection_link&creator=43317338"
+	},
+	"item": [
 		{
-		    "listen": "test",
-		    "script": {
-			"exec": [
-			    "var body = pm.response.json();\r",
-			    "var token = body.data.token;\r",
-			    "var user_id = body.data.user_id;\r",
-			    "pm.environment.set(\"token\", token);\r",
-			    "pm.environment.set(\"user_id\", user_id);\r",
-			    ""
+			"name": "login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var body = pm.response.json();\r",
+							"var token = body.data.token;\r",
+							"var user_id = body.data.user_id;\r",
+							"pm.environment.set(\"token\", token);\r",
+							"pm.environment.set(\"user_id\", user_id);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
 			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/login?login=vladimir&password=071052",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "login",
+							"value": "vladimir"
+						},
+						{
+							"key": "password",
+							"value": "071052"
+						}
+					]
+				}
+			},
+			"response": []
 		},
 		{
-		    "listen": "prerequest",
-		    "script": {
-			"exec": [
-			    ""
-			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
-		}
-	    ],
-	    "request": {
-		"method": "GET",
-		"header": [],
-		"url": {
-		    "raw": "{{base_url}}/login?login=vladimir&password=071052",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"login"
-		    ],
-		    "query": [
-			{
-			    "key": "login",
-			    "value": "vladimir"
+			"name": "get user by token",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/user/get/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"get",
+						"{{user_id}}"
+					]
+				}
 			},
-			{
-			    "key": "password",
-			    "value": "071052"
-			}
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "get user by token",
-	    "request": {
-		"method": "GET",
-		"header": [
-		    {
-			"key": "token",
-			"value": "{{token}}",
-			"type": "text"
-		    }
-		],
-		"url": {
-		    "raw": "{{base_url}}/user/get/{{user_id}}",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			"get",
-			"{{user_id}}"
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "user list",
-	    "request": {
-		"method": "GET",
-		"header": [],
-		"url": {
-		    "raw": "{{base_url}}/user/?middle_name=иван&second_name=ниг",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			""
-		    ],
-		    "query": [
-			{
-			    "key": "middle_name",
-			    "value": "иван"
-			},
-			{
-			    "key": "second_name",
-			    "value": "ниг"
-			}
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "user random",
-	    "event": [
-		{
-		    "listen": "test",
-		    "script": {
-			"exec": [
-			    "var body = pm.response.json();\r",
-			    "var token = body.data.token;\r",
-			    "pm.environment.set(\"token\", token);\r",
-			    ""
-			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
-		}
-	    ],
-	    "request": {
-		"method": "GET",
-		"header": [],
-		"url": {
-		    "raw": "{{base_url}}/user/random/",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			"random",
-			""
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "friend id  random",
-	    "event": [
-		{
-		    "listen": "test",
-		    "script": {
-			"exec": [
-			    "var body = pm.response.json();\r",
-			    "var user_id = body.data.user_id;\r",
-			    "pm.environment.set(\"user_id\", user_id);"
-			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
-		}
-	    ],
-	    "request": {
-		"method": "GET",
-		"header": [],
-		"url": {
-		    "raw": "{{base_url}}/user/random/",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			"random",
-			""
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "register new user",
-	    "event": [
-		{
-		    "listen": "test",
-		    "script": {
-			"exec": [
-			    "var body = pm.response.json();\r",
-			    "var token = body.data.token;\r",
-			    "var user_id = body.data.user_id;\r",
-			    "pm.environment.set(\"token\", token);\r",
-			    "pm.environment.set(\"user_id\", user_id);"
-			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
-		}
-	    ],
-	    "request": {
-		"method": "POST",
-		"header": [],
-		"body": {
-		    "mode": "urlencoded",
-		    "urlencoded": [
-			{
-			    "key": "login",
-			    "value": "{{$randomUserName}}",
-			    "type": "text"
-			},
-			{
-			    "key": "password",
-			    "value": "{{$randomPassword}}",
-			    "type": "text"
-			}
-		    ]
+			"response": []
 		},
-		"url": {
-		    "raw": "{{base_url}}/user/register/",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			"register",
-			""
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "update user by token",
-	    "event": [
 		{
-		    "listen": "prerequest",
-		    "script": {
-			"exec": [
-			    "const moment = require('moment')\r",
-			    "\r",
-			    "let pastDate = pm.variables.replaceIn('{{$randomDatePast}}');\r",
-			    "random_date = moment(pastDate).format((\"YYYY/MM/DD\"));\r",
-			    "pm.environment.set(\"random_date\", random_date);\r",
-			    "\r",
-			    "let random_sex = (Math.random()<0.5 ? \"0\" : \"1\");\r",
-			    "pm.environment.set(\"random_sex\", random_sex);\r",
-			    "\r",
-			    "let random_city = 1+ parseInt(Math.random() * 9);\r",
-			    "pm.environment.set(\"random_city\", random_city);\r",
-			    ""
-			],
-			"type": "text/javascript",
-			"packages": {}
-		    }
-		}
-	    ],
-	    "request": {
-		"method": "PUT",
-		"header": [
-		    {
-			"key": "token",
-			"value": "{{token}}",
-			"type": "text"
-		    }
-		],
-		"body": {
-		    "mode": "urlencoded",
-		    "urlencoded": [
-			{
-			    "key": "middle_name",
-			    "value": "{{$randomUserName}}",
-			    "type": "text"
+			"name": "user list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/user/?middle_name=иван&second_name=ниг",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						""
+					],
+					"query": [
+						{
+							"key": "middle_name",
+							"value": "иван"
+						},
+						{
+							"key": "second_name",
+							"value": "ниг"
+						}
+					]
+				}
 			},
-			{
-			    "key": "first_name",
-			    "value": "{{$randomUserName}}",
-			    "type": "text"
-			},
-			{
-			    "key": "second_name",
-			    "value": "{{$randomUserName}}",
-			    "type": "text"
-			},
-			{
-			    "key": "sex",
-			    "value": "{{random_sex}}",
-			    "type": "text"
-			},
-			{
-			    "key": "birth_day",
-			    "value": "{{random_date}}",
-			    "type": "text"
-			},
-			{
-			    "key": "city_id",
-			    "value": "{{random_city}}",
-			    "type": "text"
-			}
-		    ]
+			"response": []
 		},
-		"url": {
-		    "raw": "{{base_url}}/user/register/{{user_id}}",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"user",
-			"register",
-			"{{user_id}}"
-		    ]
+		{
+			"name": "user random",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var body = pm.response.json();\r",
+							"var token = body.data.token;\r",
+							"pm.environment.set(\"token\", token);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/user/random/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"random",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friend id  random",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var body = pm.response.json();\r",
+							"var user_id = body.data.user_id;\r",
+							"pm.environment.set(\"user_id\", user_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/user/random/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"random",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "register new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var body = pm.response.json();\r",
+							"var token = body.data.token;\r",
+							"var user_id = body.data.user_id;\r",
+							"pm.environment.set(\"token\", token);\r",
+							"pm.environment.set(\"user_id\", user_id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "login",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{$randomPassword}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/user/register/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update user by token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const moment = require('moment')\r",
+							"\r",
+							"let pastDate = pm.variables.replaceIn('{{$randomDatePast}}');\r",
+							"random_date = moment(pastDate).format((\"YYYY/MM/DD\"));\r",
+							"pm.environment.set(\"random_date\", random_date);\r",
+							"\r",
+							"let random_sex = (Math.random()<0.5 ? \"0\" : \"1\");\r",
+							"pm.environment.set(\"random_sex\", random_sex);\r",
+							"\r",
+							"let random_city = 1+ parseInt(Math.random() * 9);\r",
+							"pm.environment.set(\"random_city\", random_city);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "middle_name",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "first_name",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "second_name",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "sex",
+							"value": "{{random_sex}}",
+							"type": "text"
+						},
+						{
+							"key": "birth_day",
+							"value": "{{random_date}}",
+							"type": "text"
+						},
+						{
+							"key": "city_id",
+							"value": "{{random_city}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/user/register/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"user",
+						"register",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friend add",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/friend/add/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"friend",
+						"add",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friend delete",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/friend/delete/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"friend",
+						"delete",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "msg",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/post/create/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"post",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post feed",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"description": "при отсутвии токена возвращается лента случайного пользователя",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "msg",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/post/feed/?page=0",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"post",
+						"feed",
+						""
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0",
+							"description": "номер страницы"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dialog / send",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"description": "при отсутвии токена возвращается лента случайного пользователя",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "msg",
+							"value": "{{$randomUserName}}",
+							"type": "text"
+						},
+						{
+							"key": "direction",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/dialog/send/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"dialog",
+						"send",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dialog / list",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"description": "при отсутвии токена возвращается лента случайного пользователя",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "{{base_url}}/dialog/list/{{user_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"dialog",
+						"list",
+						"{{user_id}}"
+					]
+				}
+			},
+			"response": []
 		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "friend add",
-	    "request": {
-		"method": "POST",
-		"header": [
-		    {
-			"key": "token",
-			"value": "{{token}}",
-			"type": "text"
-		    }
-		],
-		"url": {
-		    "raw": "{{base_url}}/friend/add/{{user_id}}",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"friend",
-			"add",
-			"{{user_id}}"
-		    ]
-		}
-	    },
-	    "response": []
-	},
-	{
-	    "name": "friend delete",
-	    "request": {
-		"method": "POST",
-		"header": [
-		    {
-			"key": "token",
-			"value": "{{token}}",
-			"type": "text"
-		    }
-		],
-		"url": {
-		    "raw": "{{base_url}}/friend/delete/{{user_id}}",
-		    "host": [
-			"{{base_url}}"
-		    ],
-		    "path": [
-			"friend",
-			"delete",
-			"{{user_id}}"
-		    ]
-		}
-	    },
-	    "response": []
-	}
-    ]
+	]
 }

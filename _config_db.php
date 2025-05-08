@@ -6,5 +6,6 @@ $_db_host_r1="postgres_slave1";
 $_db_host_r2="postgres_slave2";
 $_db_name="otus";
 $_redis_host="redis";
+$_db_host_citus = "citus_master";
 
 ?>

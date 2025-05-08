@@ -7,12 +7,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/common/_core.php";
 
 function view(&$param)
 {
-        header('Location: about.php');
-        exit();
-}
-
-function create(&$param)
-{
     $_to_id = (int)$_GET['to_id'];
 
     if ( $_to_id == 0) {
@@ -46,28 +40,20 @@ function create(&$param)
         exit();
     }
 
-    $_values = "";
-    $_direction = 0;
-    foreach ($param['data'] as $idx => $row) {
-        if ($idx == "msg")
-            $_values = htmlspecialchars($row);
-        if ($idx == "direction")
-            $_direction = (int)($row);
-    }
 
-    if ($_values == "") {
-        header('Location: about.php?msg=not%20message');
-        exit();
-    }
 
-    unset($param['data']);
+    $sql = "select * from public.dialogs where from_id = $auth_user_id and to_id = $_to_id order by dt desc";
 
-    $sql = "insert into public.dialogs (from_id , to_id, msg, direction ) values ( $auth_user_id, $_to_id, '".$_values."', $_direction);";
     $result = pg_query($GLOBALS['db_postgresql_conn_citus'], $sql);
-    if ($result)
-        $param["success"] = true;
+    if ($result) {
+        while ($_post_data = pg_fetch_array($result, null, PGSQL_ASSOC))
+            $_posts_data[] = $_post_data;
 
-    $param["message"] = $sql;
+        $param["message"] = $sql;
+        $param["success"] = true;
+        $param["data"] = $_posts_data;
+    }
+
 }
 
 

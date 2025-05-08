@@ -120,6 +120,8 @@ services:
     container_name: "${COMPOSE_PROJECT_NAME:-citus}_master"
     image: "citusdata/citus:13.0.3"
     ports: ["${COORDINATOR_EXTERNAL_PORT:-65432}:5432"]
+    expose:
+      - '5432'
     labels: ["com.citusdata.role=Master"]
     environment: &AUTH
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -127,6 +129,11 @@ services:
       PGUSER: "${POSTGRES_USER:-postgres}"
       PGPASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+#      INSTANCE_NAME: "${HOSTNAME}"
+#    volumes:
+#      - "./citus/master/${HOSTNAME}:/var/lib/postgresql/data"
+    networks:
+      - internal
   worker:
     image: "citusdata/citus:13.0.3"
     labels: ["com.citusdata.role=Worker"]
@@ -135,14 +142,20 @@ services:
     command: "/wait-for-manager.sh"
     volumes:
       - healthcheck-volume:/healthcheck
+#      - "./citus/worker/${HOSTNAME}:/var/lib/postgresql/data"
+    networks:
+      - internal
   manager:
     container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
     image: "citusdata/membership-manager:0.3.0"
     volumes:
       - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
       - healthcheck-volume:/healthcheck
+#      - "./citus/manager/${HOSTNAME}:/var/lib/postgresql/data"
     depends_on: [master]
     environment: *AUTH
+    networks:
+      - internal
 
 volumes:
   healthcheck-volume:
