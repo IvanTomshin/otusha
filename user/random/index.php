@@ -8,7 +8,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/common/_core.php";
 function view(&$param)
 {
     $rnd_id = (int)rand(1,200000);
-    $sql = "select id, token from public.users where id in (select user_id from users_rnd where id = $rnd_id )";
+//    $sql = "select id, token from public.users where id in (select user_id from users_rnd where id = $rnd_id )";
+    $sql = "select friend_id as id, '' as token from public.friends order by random() limit 1";
     $result = pg_query($GLOBALS['db_postgresql_conn_r2'], $sql);
 
     unset($param['data']);

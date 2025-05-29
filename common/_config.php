@@ -7,9 +7,7 @@ $GLOBALS['db_postgresql_conn_r1'] = pg_connect("host=$_db_host_w dbname=$_db_nam
 $GLOBALS['db_postgresql_conn_r2'] = pg_connect("host=$_db_host_w dbname=$_db_name user=$_db_username password=$_db_password");
 // $GLOBALS['db_postgresql_conn_r1'] = pg_connect("host=$_db_host_r1 dbname=$_db_name user=$_db_username password=$_db_password");
 // $GLOBALS['db_postgresql_conn_r2'] = pg_connect("host=$_db_host_r2 dbname=$_db_name user=$_db_username password=$_db_password");
-
-
-$GLOBALS['db_postgresql_conn_citus'] = pg_connect("host=$_db_host_citus dbname=$_db_name user=$_db_username password=$_db_password");
+//$GLOBALS['db_postgresql_conn_citus'] = pg_connect("host=$_db_host_citus dbname=$_db_name user=$_db_username password=$_db_password");
 
 $redis = new Redis();
 $GLOBALS['redis'] -> connect($_redis_host, 6379);

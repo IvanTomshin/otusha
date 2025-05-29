@@ -33,10 +33,10 @@ function create(&$param)
     }
 
     $_values = "";
-    foreach ($param['data'] as $idx => $row) {
-        if ($idx == "msg")
-            $_values = htmlspecialchars($row);
-    }
+//    foreach ($param['data'] as $idx => $row) {
+//        if ($idx == "msg")
+//            $_values = htmlspecialchars($row);
+//    }
 
     if ($_values == "") {
         header('Location: about.php?msg=not%20message');

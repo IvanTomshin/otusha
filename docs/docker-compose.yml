@@ -79,6 +79,12 @@ services:
     volumes:
       - ./www/otusha:/var/www
       - ./log/php:/var/log/fpm-php.log
+#    command: >
+#      bash -c "
+#        apk add --no-cache pcre-dev $PHPIZE_DEPS \
+#        && pecl install redis \
+#        && docker-php-ext-enable redis.so
+#      "
 
 # redis
   redis:
@@ -116,46 +122,98 @@ services:
 
 
 #citus BD
-  master:
-    container_name: "${COMPOSE_PROJECT_NAME:-citus}_master"
-    image: "citusdata/citus:13.0.3"
-    ports: ["${COORDINATOR_EXTERNAL_PORT:-65432}:5432"]
-    expose:
-      - '5432'
-    labels: ["com.citusdata.role=Master"]
-    environment: &AUTH
-      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      PGUSER: "${POSTGRES_USER:-postgres}"
-      PGPASSWORD: "${POSTGRES_PASSWORD}"
-      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
-#      INSTANCE_NAME: "${HOSTNAME}"
+#  master:
+#    container_name: "${COMPOSE_PROJECT_NAME:-citus}_master"
+#    image: "citusdata/citus:13.0.3"
+#    ports: ["${COORDINATOR_EXTERNAL_PORT:-65432}:5432"]
+#    expose:
+#      - '5432'
+#    labels: ["com.citusdata.role=Master"]
+#    environment: &AUTH
+#      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+#      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+#      PGUSER: "${POSTGRES_USER:-postgres}"
+#      PGPASSWORD: "${POSTGRES_PASSWORD}"
+#      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+#    networks:
+#      - internal
+#  worker:
+#    image: "citusdata/citus:13.0.3"
+#    labels: ["com.citusdata.role=Worker"]
+#    depends_on: [manager]
+#    environment: *AUTH
+#    command: "/wait-for-manager.sh"
 #    volumes:
-#      - "./citus/master/${HOSTNAME}:/var/lib/postgresql/data"
-    networks:
-      - internal
-  worker:
-    image: "citusdata/citus:13.0.3"
-    labels: ["com.citusdata.role=Worker"]
-    depends_on: [manager]
-    environment: *AUTH
-    command: "/wait-for-manager.sh"
+#      - healthcheck-volume:/healthcheck
+#    networks:
+#      - internal
+#  manager:
+#    container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
+#    image: "citusdata/membership-manager:0.3.0"
+#    volumes:
+#      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+#      - healthcheck-volume:/healthcheck
+#    depends_on: [master]
+#    environment: *AUTH
+#    networks:
+#      - internal
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: pass
     volumes:
-      - healthcheck-volume:/healthcheck
-#      - "./citus/worker/${HOSTNAME}:/var/lib/postgresql/data"
+      - ./rabbitmq_data:/var/lib/rabbitmq
+    command: >
+      bash -c "
+        rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_stream rabbitmq_stream_management &&
+        rabbitmq-server
+      "
     networks:
       - internal
-  manager:
-    container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
-    image: "citusdata/membership-manager:0.3.0"
+
+  python3101:
+    image: python:3.10-slim
+    container_name: python3101
     volumes:
-      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
-      - healthcheck-volume:/healthcheck
-#      - "./citus/manager/${HOSTNAME}:/var/lib/postgresql/data"
-    depends_on: [master]
-    environment: *AUTH
+      - ./www/otusha/notifier:/app
+    working_dir: /app
+    ports:
+      - "8765:8765"
+    command: >
+      bash -c "
+         set -e &&
+         #apt-get update && apt-get install -y libpq-dev gcc &&
+         #pip install --upgrade pip &&
+         pip install --no-cache-dir psycopg2-binary pika &&
+         pip install websockets aio_pika &&
+         echo '🚀 Запуск main.py' &&
+         python create.py
+         python main.py &
+         python webserver.py &
+         wait && echo '✅ Все процессы завершены'
+      "
+
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      PYTHONUNBUFFERED: 1
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      MQ_HOST: rabbitmq
+      MQ_USER: user
+      MQ_PASS: pass
     networks:
       - internal
+
 
 volumes:
   healthcheck-volume:
