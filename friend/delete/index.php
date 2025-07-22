@@ -47,10 +47,14 @@ function create(&$param)
     if ($result)
         $param["success"] = true;
 
-    $iterator = null;
+    /*$iterator = null;
     while ($keys = $GLOBALS['redis']->scan($iterator, $auth_user_id . ":*"))
         if ($keys !== false)
             $GLOBALS['redis']->del($keys);
+    */
+
+    $deleted = $redis->rawCommand('FCALL', 'delete_user_keys', 0, $auth_user_id . ':');
+
 
     $param["message"] = $sql;
 }
