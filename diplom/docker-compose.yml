@@ -1,0 +1,173 @@
+version: "3.8"
+
+services:
+# Контейнер с базой данных
+  postgres:
+    container_name: postgres
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    ports:
+      - '5432:5432'
+    restart: always
+    networks:
+      - internal
+
+# Контейнер с базой данных slave1
+#  postgres_slave1:
+#    container_name: postgres_slave1
+#    image: postgres:16-alpine
+#    environment:
+#      - POSTGRES_USER=${DB_USER}
+#      - POSTGRES_PASSWORD=${DB_PASSWORD}
+#    volumes:
+#      - ./postgres_slave:/var/lib/postgresql/data
+#    expose:
+#      - '5432'
+#    ports:
+#      - '15432:5432'
+#    restart: always
+#    networks:
+#      - internal
+
+# Контейнер с базой данных slave2
+#  postgres_slave2:
+#    container_name: postgres_slave2
+#    image: postgres:16-alpine
+#    environment:
+#      - POSTGRES_USER=${DB_USER}
+#      - POSTGRES_PASSWORD=${DB_PASSWORD}
+#    volumes:
+#      - ./postgres_slave2:/var/lib/postgresql/data
+#    expose:
+#      - '5432'
+#    ports:
+#      - '25432:5432'
+#    restart: always
+#    networks:
+#      - internal
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - postgres
+    image: nginx:latest
+    ports:
+      - '80:80'
+# порт снаружи / порт внутри докера
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./www/otusha:/var/www
+      - ./log/nginx:/var/log/nginx
+    restart: always
+    networks:
+      - internal
+
+# php контейнер
+  php:
+    container_name: php
+    build: 
+      context: ./php
+    image: php:fpm-alpine
+    networks:
+      - internal
+    volumes:
+      - ./www/otusha:/var/www
+      - ./log/php:/var/log/fpm-php.log
+#    command: >
+#      bash -c "
+#        apk add --no-cache pcre-dev $PHPIZE_DEPS \
+#        && pecl install redis \
+#        && docker-php-ext-enable redis.so
+#      "
+
+# redis
+  redis:
+    container_name: redis
+    image: redis:latest
+    networks:
+      - internal
+    environment:
+      - REDIS_PASSWORD=${DB_PASSWORD}
+      - REDIS_USER=${DB_USER}
+      - REDIS_USER_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+#    command: /data/script.sh
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+
+
+#citus BD
+  master:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_master"
+    image: "citusdata/citus:13.0.3"
+    ports: ["${COORDINATOR_EXTERNAL_PORT:-65432}:5432"]
+    expose:
+      - '5432'
+    labels: ["com.citusdata.role=Master"]
+    environment: &AUTH
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      PGUSER: "${POSTGRES_USER:-postgres}"
+      PGPASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_HOST_AUTH_METHOD: "${POSTGRES_HOST_AUTH_METHOD:-trust}"
+    networks:
+      - internal
+  worker:
+    image: "citusdata/citus:13.0.3"
+    labels: ["com.citusdata.role=Worker"]
+    depends_on: [manager]
+    environment: *AUTH
+    command: "/wait-for-manager.sh"
+    volumes:
+      - healthcheck-volume:/healthcheck
+    networks:
+      - internal
+  manager:
+    container_name: "${COMPOSE_PROJECT_NAME:-citus}_manager"
+    image: "citusdata/membership-manager:0.3.0"
+    volumes:
+      - "${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock"
+      - healthcheck-volume:/healthcheck
+    depends_on: [master]
+    environment: *AUTH
+    networks:
+      - internal
+
+
+
+
+volumes:
+  healthcheck-volume:
+
+# контейнер с сетью
+networks:
+  internal:
+    driver: bridge
+
+
+
