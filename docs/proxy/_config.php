@@ -5,6 +5,6 @@ ini_set("display_errors", "on");
 $GLOBALS['db_postgresql_conn_w'] = pg_connect("host=$_db_host_w dbname=$_db_name user=$_db_username password=$_db_password");
 $GLOBALS['db_postgresql_conn_r1'] = pg_connect("host=$_db_host_w dbname=$_db_name user=$_db_username password=$_db_password");
 $GLOBALS['db_postgresql_conn_r2'] = pg_connect("host=$_db_host_w dbname=$_db_name user=$_db_username password=$_db_password");
-$GLOBALS['db_postgresql_conn_hproxy'] = pg_connect("host=$_db_host_w dbname=$_db_name user=$_db_username password=$_db_password port=5433");
+$GLOBALS['db_postgresql_conn_hproxy'] = pg_connect("host='hproxy' dbname=$_db_name user=$_db_username password=$_db_password port=5433");
 
 ?>
