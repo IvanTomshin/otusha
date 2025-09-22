@@ -1,0 +1,289 @@
+version: "3.8"
+
+services:
+  app:
+    build: ./prometheus-alerting/app
+    ports:
+      - "8080:8080"
+      - "19090:19090"
+    networks:
+      - internal
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus-alerting/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus-alerting/prometheus/targets:/etc/prometheus/targets
+      - ./prometheus-alerting/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - ./prometheus-alerting/data/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - internal
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./prometheus-alerting/alertmanager/config.yml:/etc/alertmanager/config.yml
+    ports:
+      - "9093:9093"
+    networks:
+      - internal
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - ./prometheus-alerting/grafana/provisioning:/etc/grafana/provisioning
+      - ./prometheus-alerting/grafana/dashboards:/etc/grafana/dashboards
+      - ./prometheus-alerting/data/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - internal
+
+
+#ZABBIX
+
+  postgres-server:
+    image: postgres:16-alpine
+    container_name: zabbix-postgres
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+    volumes:
+      - ./postgres-zabbix:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - internal
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-latest
+    container_name: zabbix-server
+    environment:
+      DB_SERVER_HOST: postgres-server
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+    ports:
+      - "10051:10051"
+    depends_on:
+      - postgres-server
+    restart: always
+    networks:
+      - internal
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-latest
+    container_name: zabbix-web
+    environment:
+      DB_SERVER_HOST: postgres-server
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix
+      POSTGRES_DB: zabbix
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: Europe/Moscow
+    ports:
+      - "8081:8080"
+    depends_on:
+      - zabbix-server
+      - postgres-server
+    restart: always
+    networks:
+      - internal
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent2:alpine-latest
+    container_name: zabbix-agent
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_HOSTNAME: "docker-agent"
+    restart: always
+    networks:
+      - internal
+
+
+
+
+
+# Контейнер с базой данных
+  postgres:
+    container_name: postgres
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    expose:
+      - '5432'
+#    ports:
+#      - '5432:5432'
+    restart: always
+    networks:
+      - internal
+
+# Контейнер с базой данных slave1
+  postgres_slave1:
+    container_name: postgres_slave1
+    depends_on:
+      - postgres
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres_slave:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    restart: always
+    networks:
+      - internal
+
+# Контейнер с базой данных slave2
+  postgres_slave2:
+    container_name: postgres_slave2
+    depends_on:
+      - postgres
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgres_slave2:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    restart: always
+    networks:
+      - internal
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - nginx1
+      - nginx2
+    image: nginx:latest
+    ports:
+#      - '8080:8080'
+      - '4088:80'
+#      - '4098:8080'
+    volumes:
+      - ./nginx-balancer:/etc/nginx/conf.d
+      - ./log/nginx:/var/log/nginx
+    restart: always
+    networks:
+      - internal
+
+  nginx1:
+    container_name: nginx1
+    depends_on:
+      - postgres
+    image: nginx:latest
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./www/otusha:/var/www
+      - ./log/nginx:/var/log/nginx
+    restart: always
+    networks:
+      - internal
+
+
+  nginx2:
+    container_name: nginx2
+    depends_on:
+      - postgres
+    image: nginx:latest
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./www/otusha:/var/www
+      - ./log/nginx:/var/log/nginx
+    restart: always
+    networks:
+      - internal
+
+
+# php контейнер
+  php:
+    container_name: php
+    build: 
+      context: ./php
+    image: php:fpm-alpine
+    networks:
+      - internal
+    volumes:
+      - ./www/otusha:/var/www
+      - ./log/php:/var/log/fpm-php.log
+#    command: >
+#      bash -c "
+#        apk add --no-cache pcre-dev $PHPIZE_DEPS \
+#        && pecl install redis \
+#        && docker-php-ext-enable redis.so
+#      "
+
+# redis
+  redis:
+    container_name: redis
+    image: redis:latest
+    networks:
+      - internal
+    environment:
+      - REDIS_PASSWORD=${DB_PASSWORD}
+      - REDIS_USER=${DB_USER}
+      - REDIS_USER_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+#    command: /data/script.sh
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+
+  haproxy:
+    image: haproxy:2.4
+    container_name: haproxy-lb
+    depends_on:
+      - postgres
+      - postgres_slave1
+      - postgres_slave2
+    restart: always
+    networks:
+      - internal
+    volumes:
+      - "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+    ports:
+      - "5432:5432"   # master
+      - "5433:5433"   # replicas
+      - "8404:8404"   # stats
+
+
+volumes:
+  healthcheck-volume:
+
+# контейнер с сетью
+networks:
+  internal:
+    driver: bridge
+
+
+
