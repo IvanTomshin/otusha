@@ -165,39 +165,10 @@ services:
   nginx:
     container_name: nginx
     depends_on:
-      - nginx1
-      - nginx2
+      - postgres
     image: nginx:latest
     ports:
-#      - '8080:8080'
-      - '4088:80'
-#      - '4098:8080'
-    volumes:
-      - ./nginx-balancer:/etc/nginx/conf.d
-      - ./log/nginx:/var/log/nginx
-    restart: always
-    networks:
-      - internal
-
-  nginx1:
-    container_name: nginx1
-    depends_on:
-      - postgres
-    image: nginx:latest
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-      - ./www/otusha:/var/www
-      - ./log/nginx:/var/log/nginx
-    restart: always
-    networks:
-      - internal
-
-
-  nginx2:
-    container_name: nginx2
-    depends_on:
-      - postgres
-    image: nginx:latest
+      - '80:80'
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./www/otusha:/var/www
@@ -284,6 +255,5 @@ volumes:
 networks:
   internal:
     driver: bridge
-
 
 
