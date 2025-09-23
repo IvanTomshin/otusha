@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant User
     participant MessagingService as Messaging Service
